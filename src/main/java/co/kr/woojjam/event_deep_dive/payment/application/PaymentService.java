@@ -2,8 +2,8 @@ package co.kr.woojjam.event_deep_dive.payment.application;
 
 import co.kr.woojjam.event_deep_dive.outbox.domain.OutboxEventType;
 import co.kr.woojjam.event_deep_dive.outbox.domain.PaymentApprovedPayload;
-import co.kr.woojjam.event_deep_dive.outbox.domain.PaymentOutbox;
-import co.kr.woojjam.event_deep_dive.outbox.infrastructure.PaymentOutboxRepository;
+import co.kr.woojjam.event_deep_dive.outbox.domain.Outbox;
+import co.kr.woojjam.event_deep_dive.outbox.infrastructure.OutboxRepository;
 import co.kr.woojjam.event_deep_dive.payment.application.dto.PaymentRequest;
 import co.kr.woojjam.event_deep_dive.payment.application.dto.PaymentResponse;
 import co.kr.woojjam.event_deep_dive.payment.application.event.PaymentApprovedEvent;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final PaymentOutboxRepository paymentOutboxRepository;
+    private final OutboxRepository paymentOutboxRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ObjectMapper objectMapper;
 
@@ -32,7 +32,7 @@ public class PaymentService {
      *
      * 트랜잭션 내에서 다음 두 작업을 원자적으로 처리한다:
      *   1. Payment 상태 APPROVED 전이 및 저장
-     *   2. PaymentOutbox INSERT (status=PENDING, processableAfter=now+5분)
+     *   2. Outbox INSERT (status=PENDING, processableAfter=now+5분)
      *
      * 트랜잭션 커밋 후 @TransactionalEventListener(AFTER_COMMIT)가 즉시 SMS/FCM을 처리한다(Primary Path).
      * 서버 crash 등으로 리스너가 실행되지 못한 경우 Outbox Scheduler가 5분 후 폴링으로 복구한다(Fallback Path).
@@ -58,7 +58,7 @@ public class PaymentService {
                 payment.getAmount()
         );
         String payloadJson = serializePayload(payload);
-        PaymentOutbox outbox = PaymentOutbox.create(payment.getId(), OutboxEventType.PAYMENT_APPROVED.name(), payloadJson);
+        Outbox outbox = Outbox.create(payment.getId(), OutboxEventType.PAYMENT_APPROVED.name(), payloadJson);
         paymentOutboxRepository.save(outbox);
         log.info("[Outbox] 이벤트 저장 완료 - outboxId: {}, paymentId: {}", outbox.getId(), payment.getId());
 

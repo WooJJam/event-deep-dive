@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 @Table(name = "payment_outbox")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentOutbox {
+public class Outbox {
 
     private static final int MAX_RETRY_COUNT = 3;
-    private static final long PROCESSABLE_AFTER_MINUTES = 1;
+    private static final long PROCESSABLE_AFTER_MINUTES = 2;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,9 +54,9 @@ public class PaymentOutbox {
     private LocalDateTime createdAt;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private PaymentOutbox(Long paymentId, String eventType, String payload,
-                          OutboxStatus status, int retryCount,
-                          LocalDateTime processableAfter, LocalDateTime nextRetryAt) {
+    private Outbox(Long paymentId, String eventType, String payload,
+                   OutboxStatus status, int retryCount,
+                   LocalDateTime processableAfter, LocalDateTime nextRetryAt) {
         this.paymentId = paymentId;
         this.eventType = eventType;
         this.payload = payload;
@@ -67,8 +67,8 @@ public class PaymentOutbox {
         this.createdAt = LocalDateTime.now();
     }
 
-    public static PaymentOutbox create(Long paymentId, String eventType, String payload) {
-        return PaymentOutbox.builder()
+    public static Outbox create(Long paymentId, String eventType, String payload) {
+        return Outbox.builder()
                 .paymentId(paymentId)
                 .eventType(eventType)
                 .payload(payload)

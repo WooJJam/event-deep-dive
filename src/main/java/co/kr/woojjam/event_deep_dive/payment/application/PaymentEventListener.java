@@ -3,8 +3,8 @@ package co.kr.woojjam.event_deep_dive.payment.application;
 import co.kr.woojjam.event_deep_dive.notification.FcmNotificationService;
 import co.kr.woojjam.event_deep_dive.notification.SmsNotificationService;
 import co.kr.woojjam.event_deep_dive.outbox.domain.PaymentApprovedPayload;
-import co.kr.woojjam.event_deep_dive.outbox.domain.PaymentOutbox;
-import co.kr.woojjam.event_deep_dive.outbox.infrastructure.PaymentOutboxRepository;
+import co.kr.woojjam.event_deep_dive.outbox.domain.Outbox;
+import co.kr.woojjam.event_deep_dive.outbox.infrastructure.OutboxRepository;
 import co.kr.woojjam.event_deep_dive.payment.application.event.PaymentApprovedEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +21,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class PaymentEventListener {
 
-    private final PaymentOutboxRepository paymentOutboxRepository;
+    private final OutboxRepository paymentOutboxRepository;
     private final SmsNotificationService smsNotificationService;
     private final FcmNotificationService fcmNotificationService;
     private final ObjectMapper objectMapper;
@@ -41,7 +41,7 @@ public class PaymentEventListener {
     public void onPaymentApproved(final PaymentApprovedEvent event) {
         log.info("[Listener] PAYMENT_APPROVED 이벤트 수신 - outboxId: {}", event.outboxId());
 
-        PaymentOutbox outbox = paymentOutboxRepository.findById(event.outboxId())
+        Outbox outbox = paymentOutboxRepository.findById(event.outboxId())
                 .orElseThrow(() -> new IllegalStateException("Outbox 이벤트를 찾을 수 없습니다. id: " + event.outboxId()));
 
         try {

@@ -4,8 +4,8 @@ import co.kr.woojjam.event_deep_dive.notification.FcmNotificationService;
 import co.kr.woojjam.event_deep_dive.notification.SmsNotificationService;
 import co.kr.woojjam.event_deep_dive.outbox.domain.OutboxStatus;
 import co.kr.woojjam.event_deep_dive.outbox.domain.PaymentApprovedPayload;
-import co.kr.woojjam.event_deep_dive.outbox.domain.PaymentOutbox;
-import co.kr.woojjam.event_deep_dive.outbox.infrastructure.PaymentOutboxRepository;
+import co.kr.woojjam.event_deep_dive.outbox.domain.Outbox;
+import co.kr.woojjam.event_deep_dive.outbox.infrastructure.OutboxRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OutboxScheduler {
 
-    private final PaymentOutboxRepository paymentOutboxRepository;
+    private final OutboxRepository paymentOutboxRepository;
     private final SmsNotificationService smsNotificationService;
     private final FcmNotificationService fcmNotificationService;
     private final ObjectMapper objectMapper;
@@ -40,10 +40,10 @@ public class OutboxScheduler {
      *
      * fixedDelay: 이전 실행이 완료된 후 1분 뒤 실행 (fixedRate 사용 시 처리 지연에 따른 중복 실행 위험)
      */
-    @Scheduled(fixedDelay = 60_000)
+    @Scheduled(fixedDelay = 300_000)
     @Transactional
     public void processPendingEvents() {
-        List<PaymentOutbox> events = paymentOutboxRepository.findEventsReadyToProcess(
+        List<Outbox> events = paymentOutboxRepository.findEventsReadyToProcess(
                 OutboxStatus.PENDING, LocalDateTime.now()
         );
 
@@ -54,12 +54,12 @@ public class OutboxScheduler {
 
         log.info("[Scheduler] 미처리 Outbox 이벤트 {}건 발견", events.size());
 
-        for (PaymentOutbox outbox : events) {
+        for (Outbox outbox : events) {
             processEvent(outbox);
         }
     }
 
-    private void processEvent(PaymentOutbox outbox) {
+    private void processEvent(Outbox outbox) {
         log.info("[Scheduler] Outbox 이벤트 처리 시작 - outboxId: {}, retryCount: {}",
                 outbox.getId(), outbox.getRetryCount());
         try {
