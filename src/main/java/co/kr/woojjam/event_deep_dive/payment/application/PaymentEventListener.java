@@ -6,6 +6,8 @@ import co.kr.woojjam.event_deep_dive.outbox.domain.PaymentApprovedPayload;
 import co.kr.woojjam.event_deep_dive.outbox.domain.PaymentOutbox;
 import co.kr.woojjam.event_deep_dive.outbox.infrastructure.PaymentOutboxRepository;
 import co.kr.woojjam.event_deep_dive.payment.application.event.PaymentApprovedEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,7 @@ public class PaymentEventListener {
     private final PaymentOutboxRepository paymentOutboxRepository;
     private final SmsNotificationService smsNotificationService;
     private final FcmNotificationService fcmNotificationService;
+    private final ObjectMapper objectMapper;
 
     /**
      * Primary Path: 결제 트랜잭션 커밋 직후 실행.
@@ -42,7 +45,8 @@ public class PaymentEventListener {
                 .orElseThrow(() -> new IllegalStateException("Outbox 이벤트를 찾을 수 없습니다. id: " + event.outboxId()));
 
         try {
-            PaymentApprovedPayload payload = event.payload();
+            // 이벤트 객체가 아닌 Outbox 테이블의 payload를 단일 진실 공급원으로 사용한다.
+            PaymentApprovedPayload payload = deserializePayload(outbox.getPayload());
 
             smsNotificationService.sendToStadiumOwner(
                     payload.stadiumOwnerPhone(),
@@ -65,6 +69,14 @@ public class PaymentEventListener {
             // Outbox Scheduler가 processableAfter(5분) 이후 Fallback으로 재처리한다.
             log.error("[Listener] Primary path 처리 실패 - outboxId: {}. Scheduler Fallback에 위임합니다.",
                     event.outboxId(), e);
+        }
+    }
+
+    private PaymentApprovedPayload deserializePayload(String payloadJson) {
+        try {
+            return objectMapper.readValue(payloadJson, PaymentApprovedPayload.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Outbox payload 역직렬화 실패", e);
         }
     }
 }

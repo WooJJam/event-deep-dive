@@ -63,7 +63,8 @@ public class PaymentService {
         log.info("[Outbox] 이벤트 저장 완료 - outboxId: {}, paymentId: {}", outbox.getId(), payment.getId());
 
         // 4. Spring Event 발행 → AFTER_COMMIT 리스너 트리거 (Primary Path)
-        eventPublisher.publishEvent(new PaymentApprovedEvent(outbox.getId(), payload));
+        // outboxId만 전달한다. 실제 payload는 리스너/스케줄러가 Outbox 테이블에서 직접 읽는다.
+        eventPublisher.publishEvent(new PaymentApprovedEvent(outbox.getId()));
 
         return PaymentResponse.from(payment);
     }
