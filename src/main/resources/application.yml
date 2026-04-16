@@ -18,3 +18,5 @@ spring:
 logging:
   level:
     co.kr.woojjam: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss} [${APP_INSTANCE_ID:local}] [%thread] %-5level %logger{36} - %msg%n"

@@ -15,6 +15,9 @@ build/
 # Spring Boot
 application-*.yml
 
+# Secrets
+.env
+
 # Docs
 docs/
 
