@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -27,24 +29,16 @@ public class OutboxScheduler {
     private final FcmNotificationService fcmNotificationService;
     private final ObjectMapper objectMapper;
 
-    /**
-     * Fallback Path: 1분마다 PENDING 이벤트를 폴링하여 처리한다.
-     *
-     * 조회 조건:
-     *   - status = PENDING
-     *   - processableAfter <= now : 리스너 유예 시간(5분) 경과
-     *   - nextRetryAt IS NULL OR nextRetryAt <= now : Exponential Backoff 대기 완료
-     *
-     * 정상 상황에서는 Primary Listener가 이미 PROCESSED로 마킹했으므로 조회 결과가 없다.
-     * 서버 crash 또는 리스너 실패로 PENDING이 남은 경우에만 동작한다.
-     *
-     * fixedDelay: 이전 실행이 완료된 후 1분 뒤 실행 (fixedRate 사용 시 처리 지연에 따른 중복 실행 위험)
-     */
-    @Scheduled(fixedDelay = 300_00)
+    @SchedulerLock(
+        name = "OutboxScheduler_processPendingEvents",
+        lockAtMostFor = "PT10m",
+        lockAtLeastFor = "PT25s"
+    )
+    @Scheduled(fixedDelay = 30_000)
     @Transactional
     public void processPendingEvents() {
         List<Outbox> events = paymentOutboxRepository.findEventsReadyToProcess(
-                OutboxStatus.PENDING, LocalDateTime.now()
+            OutboxStatus.PENDING, LocalDateTime.now()
         );
 
         if (events.isEmpty()) {
@@ -58,6 +52,7 @@ public class OutboxScheduler {
             processEvent(outbox);
         }
     }
+
 
     private void processEvent(Outbox outbox) {
         log.info("[Scheduler] Outbox 이벤트 처리 시작 - outboxId: {}, retryCount: {}",
