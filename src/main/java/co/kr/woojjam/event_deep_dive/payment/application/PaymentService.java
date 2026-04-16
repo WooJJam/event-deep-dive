@@ -58,7 +58,7 @@ public class PaymentService {
                 payment.getAmount()
         );
         String payloadJson = serializePayload(payload);
-        Outbox outbox = Outbox.create(payment.getId(), OutboxEventType.PAYMENT_APPROVED.name(), payloadJson);
+        Outbox outbox = Outbox.create(payment.getId(), OutboxEventType.PAYMENT_APPROVED, payloadJson);
         paymentOutboxRepository.save(outbox);
         log.info("[Outbox] 이벤트 저장 완료 - outboxId: {}, paymentId: {}", outbox.getId(), payment.getId());
 

@@ -41,35 +41,35 @@ public class PaymentEventListener {
     public void onPaymentApproved(final PaymentApprovedEvent event) {
         log.info("[Listener] PAYMENT_APPROVED 이벤트 수신 - outboxId: {}", event.outboxId());
 
-        Outbox outbox = paymentOutboxRepository.findById(event.outboxId())
-                .orElseThrow(() -> new IllegalStateException("Outbox 이벤트를 찾을 수 없습니다. id: " + event.outboxId()));
-
-        try {
-            // 이벤트 객체가 아닌 Outbox 테이블의 payload를 단일 진실 공급원으로 사용한다.
-            PaymentApprovedPayload payload = deserializePayload(outbox.getPayload());
-
-            smsNotificationService.sendToStadiumOwner(
-                    payload.stadiumOwnerPhone(),
-                    payload.userName(),
-                    payload.matchTitle(),
-                    payload.amount()
-            );
-
-            fcmNotificationService.sendToUser(
-                    payload.userFcmToken(),
-                    payload.userName(),
-                    payload.matchTitle()
-            );
-
-            outbox.markProcessed();
-            log.info("[Listener] 이벤트 처리 완료 - outboxId: {}", event.outboxId());
-
-        } catch (Exception e) {
-            // 처리 실패 시 Outbox는 PENDING 상태를 유지한다.
-            // Outbox Scheduler가 processableAfter(5분) 이후 Fallback으로 재처리한다.
-            log.error("[Listener] Primary path 처리 실패 - outboxId: {}. Scheduler Fallback에 위임합니다.",
-                    event.outboxId(), e);
-        }
+        // Outbox outbox = paymentOutboxRepository.findById(event.outboxId())
+        //         .orElseThrow(() -> new IllegalStateException("Outbox 이벤트를 찾을 수 없습니다. id: " + event.outboxId()));
+        //
+        // try {
+        //     // 이벤트 객체가 아닌 Outbox 테이블의 payload를 단일 진실 공급원으로 사용한다.
+        //     PaymentApprovedPayload payload = deserializePayload(outbox.getPayload());
+        //
+        //     smsNotificationService.sendToStadiumOwner(
+        //             payload.stadiumOwnerPhone(),
+        //             payload.userName(),
+        //             payload.matchTitle(),
+        //             payload.amount()
+        //     );
+        //
+        //     fcmNotificationService.sendToUser(
+        //             payload.userFcmToken(),
+        //             payload.userName(),
+        //             payload.matchTitle()
+        //     );
+        //
+        //     outbox.markProcessed();
+        //     log.info("[Listener] 이벤트 처리 완료 - outboxId: {}", event.outboxId());
+        //
+        // } catch (Exception e) {
+        //     // 처리 실패 시 Outbox는 PENDING 상태를 유지한다.
+        //     // Outbox Scheduler가 processableAfter(5분) 이후 Fallback으로 재처리한다.
+        //     log.error("[Listener] Primary path 처리 실패 - outboxId: {}. Scheduler Fallback에 위임합니다.",
+        //             event.outboxId(), e);
+        // }
     }
 
     private PaymentApprovedPayload deserializePayload(String payloadJson) {

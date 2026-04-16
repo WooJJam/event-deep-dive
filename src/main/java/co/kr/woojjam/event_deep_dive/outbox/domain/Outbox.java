@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Outbox {
 
     private static final int MAX_RETRY_COUNT = 3;
-    private static final long PROCESSABLE_AFTER_MINUTES = 2;
+    private static final long DEFAULT_PROCESSABLE_AFTER_MINUTES = 1;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +25,8 @@ public class Outbox {
     private Long paymentId;
 
     @Column(nullable = false)
-    private String eventType;
+    @Enumerated(value = EnumType.STRING)
+    private OutboxEventType eventType;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String payload;
@@ -54,7 +55,7 @@ public class Outbox {
     private LocalDateTime createdAt;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Outbox(Long paymentId, String eventType, String payload,
+    private Outbox(Long paymentId, OutboxEventType eventType, String payload,
                    OutboxStatus status, int retryCount,
                    LocalDateTime processableAfter, LocalDateTime nextRetryAt) {
         this.paymentId = paymentId;
@@ -67,14 +68,22 @@ public class Outbox {
         this.createdAt = LocalDateTime.now();
     }
 
-    public static Outbox create(Long paymentId, String eventType, String payload) {
+    public static Outbox create(Long paymentId, OutboxEventType eventType, String payload) {
+        return init(paymentId, eventType, payload, DEFAULT_PROCESSABLE_AFTER_MINUTES);
+    }
+
+    public static Outbox create(Long paymentId, OutboxEventType eventType, String payload, long processableAfterMinutes) {
+        return init(paymentId, eventType, payload, processableAfterMinutes);
+    }
+
+    private static Outbox init(Long paymentId, OutboxEventType eventType, String payload, long processableAfterMinutes) {
         return Outbox.builder()
                 .paymentId(paymentId)
                 .eventType(eventType)
                 .payload(payload)
                 .status(OutboxStatus.PENDING)
                 .retryCount(0)
-                .processableAfter(LocalDateTime.now().plusMinutes(PROCESSABLE_AFTER_MINUTES))
+                .processableAfter(LocalDateTime.now().plusMinutes(processableAfterMinutes))
                 .nextRetryAt(null)
                 .build();
     }

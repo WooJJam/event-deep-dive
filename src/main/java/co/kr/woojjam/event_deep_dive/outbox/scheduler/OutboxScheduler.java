@@ -40,7 +40,7 @@ public class OutboxScheduler {
      *
      * fixedDelay: 이전 실행이 완료된 후 1분 뒤 실행 (fixedRate 사용 시 처리 지연에 따른 중복 실행 위험)
      */
-    @Scheduled(fixedDelay = 300_000)
+    @Scheduled(fixedDelay = 300_00)
     @Transactional
     public void processPendingEvents() {
         List<Outbox> events = paymentOutboxRepository.findEventsReadyToProcess(
