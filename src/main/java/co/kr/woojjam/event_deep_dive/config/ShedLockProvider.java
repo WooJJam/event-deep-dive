@@ -1,12 +1,7 @@
 package co.kr.woojjam.event_deep_dive.config;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;

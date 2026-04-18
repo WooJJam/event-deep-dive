@@ -31,10 +31,10 @@ public class OutboxScheduler {
 
     @SchedulerLock(
         name = "OutboxScheduler_processPendingEvents",
-        lockAtMostFor = "PT10m",
-        lockAtLeastFor = "PT25s"
+        lockAtMostFor = "PT5m",
+        lockAtLeastFor = "PT20s"
     )
-    @Scheduled(fixedDelay = 30_000)
+    @Scheduled(fixedDelay = 300_000)
     @Transactional
     public void processPendingEvents() {
         List<Outbox> events = paymentOutboxRepository.findEventsReadyToProcess(
