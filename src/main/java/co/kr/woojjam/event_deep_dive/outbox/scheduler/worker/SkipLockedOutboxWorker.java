@@ -1,4 +1,4 @@
-package co.kr.woojjam.event_deep_dive.outbox.scheduler.skiplock;
+package co.kr.woojjam.event_deep_dive.outbox.scheduler.worker;
 
 import co.kr.woojjam.event_deep_dive.notification.FcmNotificationService;
 import co.kr.woojjam.event_deep_dive.notification.SmsNotificationService;

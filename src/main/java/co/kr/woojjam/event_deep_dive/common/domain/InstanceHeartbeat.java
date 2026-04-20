@@ -1,4 +1,4 @@
-package co.kr.woojjam.event_deep_dive.outbox.domain;
+package co.kr.woojjam.event_deep_dive.common.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

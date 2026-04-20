@@ -1,5 +1,6 @@
-package co.kr.woojjam.event_deep_dive.outbox.scheduler.skiplock;
+package co.kr.woojjam.event_deep_dive.outbox.scheduler;
 
+import co.kr.woojjam.event_deep_dive.outbox.scheduler.worker.SkipLockedOutboxWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;

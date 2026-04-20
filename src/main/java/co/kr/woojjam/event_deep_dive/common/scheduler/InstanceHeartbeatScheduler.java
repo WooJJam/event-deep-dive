@@ -1,4 +1,4 @@
-package co.kr.woojjam.event_deep_dive.outbox.scheduler.skiplock;
+package co.kr.woojjam.event_deep_dive.common.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
