@@ -18,10 +18,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "outbox.scheduler.type", havingValue = "shedlock", matchIfMissing = true)
 public class OutboxScheduler {
 
     private final OutboxRepository paymentOutboxRepository;
@@ -37,7 +39,7 @@ public class OutboxScheduler {
     @Scheduled(fixedDelay = 300_000)
     @Transactional
     public void processPendingEvents() {
-        List<Outbox> events = paymentOutboxRepository.findEventsReadyToProcess(
+        List<Outbox> events = paymentOutboxRepository.findPendingOutbox(
             OutboxStatus.PENDING, LocalDateTime.now()
         );
 
