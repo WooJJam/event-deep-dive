@@ -15,6 +15,10 @@ spring:
         format_sql: true
       dialect: org.hibernate.dialect.MySQLDialect
 
+outbox:
+  scheduler:
+    type: skip-locked  # shedlock | skip-locked
+
 logging:
   level:
     co.kr.woojjam: DEBUG

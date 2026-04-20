@@ -51,6 +51,8 @@ public class Outbox {
      */
     private LocalDateTime nextRetryAt;
 
+    private LocalDateTime processingStartedAt;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -89,6 +91,11 @@ public class Outbox {
     }
 
     // ── 상태 전이 메서드 ──────────────────────────────────────────
+
+    public void markProcessing() {
+        this.status = OutboxStatus.PROCESSING;
+        this.processingStartedAt = LocalDateTime.now();
+    }
 
     public void markProcessed() {
         this.status = OutboxStatus.PROCESSED;
