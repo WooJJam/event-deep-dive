@@ -2,11 +2,11 @@
 
 이벤트를 사용하며 발생하는 문제(이벤트 유실, 중복 처리)들을 직접 테스트하고 해결 패턴을 구현하는 프로젝트.
 
-[이벤트 유실을 방지하기 위한 Outbox Pattern 도입기](https://woojjam.tistory.com/25)
+## Blog Posts
+- [스프링 이벤트를 발행하여 트랜잭션과 관심사 분리하기](https://woojjam.tistory.com/11)
+- [이벤트 유실을 방지하기 위한 Outbox Pattern 도입기](https://woojjam.tistory.com/25)
+- [ShedLock으로 분산 환경에서 스케줄러 중복 실행을 방지하자](https://woojjam.tistory.com/26)
 
-[ShedLock으로 분산 환경에서 스케줄러 중복 실행을 방지하자](https://woojjam.tistory.com/26)
-
----
 
 ## 구현 단계 요약
 
